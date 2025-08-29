@@ -1,11 +1,12 @@
+const cors = require("cors");
 import express from 'express';
 import http from 'http';
 
 const app = express();
 const server = http.createServer(app);
 
-app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(cors());
 
 // routes
 import authRouter from './routes/auth';
