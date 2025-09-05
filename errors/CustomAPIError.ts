@@ -1,11 +1,11 @@
-import { StatusCodes } from "http-status-codes";
+import { StatusCodes } from 'http-status-codes';
 
 class CustomAPIError extends Error {
-  statusCode: number;
-  
-  constructor(message: string) {
+  statusCode: StatusCodes;
+
+  constructor(message: string, statusCode = StatusCodes.INTERNAL_SERVER_ERROR) {
     super(message);
-    this.statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
+    this.statusCode = statusCode;
   }
 }
 

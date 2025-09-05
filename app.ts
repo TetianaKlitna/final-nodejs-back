@@ -1,6 +1,15 @@
-const cors = require("cors");
+import cors from 'cors';
 import express from 'express';
+import 'express-async-errors';
 import http from 'http';
+import connectDB from './db/connect';
+import dotenv from 'dotenv';
+dotenv.config();
+
+import authRouter from './routes/auth';
+
+import notFoundMiddleware from './middleware/not-found';
+import errorHandlerMiddleware from './middleware/error-handler';
 
 const app = express();
 const server = http.createServer(app);
@@ -9,19 +18,12 @@ app.use(express.json());
 app.use(cors());
 
 // routes
-import authRouter from './routes/auth';
 app.use('/api/v1/auth', authRouter);
 
 // middlewares
-import notFoundMiddleware from './middleware/not-found';
 app.use(notFoundMiddleware);
-
-import errorHandlerMiddleware from './middleware/error-handler';
 app.use(errorHandlerMiddleware);
 
-import connectDB from './db/connect';
-import dotenv from 'dotenv';
-dotenv.config();
 const PORT = process.env.PORT || 3000;
 const start = async () => {
   try {
