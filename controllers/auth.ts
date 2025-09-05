@@ -1,18 +1,29 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { BadRequestError } from '../errors';
+import { BadRequestError, UnauthenticatedError } from '../errors';
+import User from '../model/User';
 
-const signUp = async (req: Request, res: Response) => {
-  // const { name, email, password } = req.body;
-  // if(!name || !email || !password){
-  //   throw new BadRequestError('Please provide name, email and password');
-  // }
-  //return res.status(StatusCodes.OK).json({ success: true, msg: 'User created' });
-  return res.status(StatusCodes.OK).json({ id: 1, name: 'Tetiana' });
+const register = async (req: Request, res: Response) => {
+  const user = await User.create({ ...req.body });
+  const token = user.createJWT();
+  res.status(StatusCodes.CREATED).json({ user: { name: user.name }, token });
 };
 
-const signIn = async(req: Request, res:Response) => {
-  return res.status(StatusCodes.OK).json({ success: true, msg: 'User login' });
-}
+const login = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    throw new BadRequestError('Please provide email and password');
+  }
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new UnauthenticatedError('Invalid Credentials');
+  }
+  const isPasswordCorrect = user.comparePassword(password);
+  if (!isPasswordCorrect) {
+    throw new UnauthenticatedError('Invalid Password');
+  }
+  const token = user.createJWT();
+  res.status(StatusCodes.OK).json({ user: { name: user.name }, token });
+};
 
-export { signUp, signIn };
+export { register, login };
