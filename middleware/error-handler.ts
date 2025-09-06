@@ -19,7 +19,6 @@ const errorHandler = (
   }
 
   if (err instanceof mongoose.Error.ValidationError) {
-    console.log('validation');
     return res.status(StatusCodes.BAD_REQUEST).json({
       success: false,
       msg: `${Object.values(err.errors)
