@@ -18,22 +18,29 @@ const errorHandler = (
       .json({ success: false, msg: err.message });
   }
 
+  if (err instanceof MongoServerError && err.code === 11000) {
+    const fields = err.keyValue
+      ? Object.keys(err.keyValue).join(', ')
+      : 'field';
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      success: false,
+      msg: `Duplicate value for ${fields}`,
+    });
+  }
+
+  if (err instanceof mongoose.Error.CastError) {
+    return res.status(StatusCodes.NOT_FOUND).json({
+      success: false,
+      msg: `No item found with id : ${err.value}`,
+    });
+  }
+
   if (err instanceof mongoose.Error.ValidationError) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       success: false,
       msg: `${Object.values(err.errors)
         .map((item) => item.message)
         .join(', ')}`,
-    });
-  }
-
-  if (err instanceof MongoServerError && err.code === 11000) {
-    const fields = err.keyValue
-      ? Object.keys(err.keyValue).join(', ')
-      : 'field';
-    return res.status(StatusCodes.CONFLICT).json({
-      success: false,
-      msg: `Duplicate value for ${fields}`,
     });
   }
 

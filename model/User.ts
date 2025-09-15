@@ -1,58 +1,46 @@
-import jwt, { SignOptions } from 'jsonwebtoken';
-import type { User, UserMethods } from './types/User.types';
-import { Schema, model, HydratedDocument, Model } from 'mongoose';
-import bcrypt from 'bcryptjs';
+import { Schema, model, InferSchemaType, HydratedDocument } from 'mongoose';
 
-type UserDoc = HydratedDocument<User>;
-type UserModel = Model<User, {}, UserMethods>;
+const PROVIDER = ['local', 'google', 'facebook'];
 
-const userSchema = new Schema<User, UserModel, UserMethods>(
+const userSchema = new Schema(
   {
     name: {
       type: String,
       required: [true, 'Please provide name'],
-      minlength: 5,
-      maxlength: 20,
+      minlength: [3, 'Name must be at least 3 characters'],
+      maxlength: [50, 'Name cannot be longer than 50 characters'],
       trim: true,
     },
     email: {
       type: String,
       required: [true, 'Please provide email'],
-      match: [
-        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}))$/,
-        'Please provide valid email',
-      ],
       unique: true,
       lowercase: true,
       trim: true,
+      maxlength: [100, 'Email cannot be longer than 100 characters'],
     },
+    isActivated: { type: Boolean, default: false },
+    activationLink: { type: String },
     password: {
       type: String,
-      required: [true, 'Please provide password'],
-      minlength: 5,
+      // google/facebook auth users without password
+      required: function (this: HydratedDocument<User>) {
+        return this.provider === 'local';
+      },
+      minlength: [8, 'Password must be at least 8 characters long'],
+    },
+    provider: {
+      type: String,
+      required: true,
+      enum: PROVIDER,
+      default: 'local',
     },
   },
   { timestamps: true }
 );
 
-userSchema.pre('save', async function (this: UserDoc) {
-  if (!this.isModified('password')) return;
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
+export type User = InferSchemaType<typeof userSchema>;
+export type UserDoc = HydratedDocument<User>;
 
-userSchema.methods.createJWT = function (this: UserDoc): string {
-  const secret = process.env.JWT_SECRET!;
-  const expiresIn = process.env.JWT_LIFETIME! as SignOptions['expiresIn'];
-  return jwt.sign({ userId: this._id.toString(), name: this.name }, secret, {
-    expiresIn,
-  });
-};
-
-userSchema.methods.comparePassword = async function (
-  candidatePassword: string
-): Promise<boolean> {
-  return await bcrypt.compare(candidatePassword, this.password);
-};
-
-export default model<User, UserModel>('User', userSchema);
+const UserModel = model<User>('User', userSchema);
+export default UserModel;
