@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import helmet from 'helmet';
-import cors from 'cors';
+import cors, { CorsOptions } from 'cors';
 import { xss } from 'express-xss-sanitizer';
 import rateLimit from 'express-rate-limit';
 import express from 'express';
@@ -19,9 +19,16 @@ import errorHandlerMiddleware from './middleware/error-handler';
 const app = express();
 const server = http.createServer(app);
 
+const corsOptions: CorsOptions = {
+  origin: [process.env.CLIENT_URL || ''],
+  credentials: true,
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
 app.use(express.json());
 // security
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(helmet());
 app.use(xss());
 const limiter = rateLimit({
