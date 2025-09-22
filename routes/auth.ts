@@ -34,6 +34,7 @@ authRouter.post('/login', login);
 authRouter.post('/logout', logout);
 authRouter.get('/activate/:link', activate);
 authRouter.get('/refresh', refresh);
+
 authRouter.get('/google', googleAuth);
 authRouter.get('/google/callback', googleCallback);
 

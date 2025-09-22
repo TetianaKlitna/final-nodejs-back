@@ -9,7 +9,6 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(StatusCodes.BAD_REQUEST).json({
-      success: false,
       msg: errors
         .array()
         .map((err) => err.msg)
@@ -22,7 +21,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
     maxAge: 2 * 24 * 60 * 60 * 1000 /* 2d */,
     httpOnly: true,
   });
-  res.status(StatusCodes.CREATED).json({ success: true, ...userData });
+  res.status(StatusCodes.CREATED).json({ ...userData });
 };
 
 const login = async (req: Request, res: Response, next: NextFunction) => {
@@ -32,7 +31,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     maxAge: 2 * 24 * 60 * 60 * 1000 /* 2d */,
     httpOnly: true,
   });
-  res.status(StatusCodes.OK).json({ success: true, ...userData });
+  res.status(StatusCodes.OK).json({ ...userData });
 };
 
 const logout = async (req: Request, res: Response, next: NextFunction) => {
@@ -55,7 +54,7 @@ const refresh = async (req: Request, res: Response, next: NextFunction) => {
     maxAge: 2 * 24 * 60 * 60 * 1000 /* 2d */,
     httpOnly: true,
   });
-  res.status(StatusCodes.OK).json({ success: true, ...userData });
+  res.status(StatusCodes.OK).json({ ...userData });
 };
 
 const googleAuth = passport.authenticate('google', {
@@ -68,13 +67,11 @@ const googleCallback = [
     if (!req.user) {
       throw new UnauthenticatedError('Google Authentication error');
     }
-    const user = req.user as any;
-    const token = user.createJWT();
-    return res.status(StatusCodes.OK).json({
-      success: true,
-      user: { name: user.name },
-      token,
-    });
+    // const user = req.user as any;
+    // return res.status(StatusCodes.OK).json({
+    //   user: { name: user.name },
+    //   token,
+    // });
   },
 ];
 
