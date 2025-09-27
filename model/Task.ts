@@ -6,11 +6,21 @@ import {
   Types,
 } from 'mongoose';
 
-const STATUS = ['To-Do', 'In-Progress', 'Done'];
-const PRIORITY = ['Low', 'Medium', 'High'];
+export const STATUS = {
+  TODO: 'To-Do',
+  IN_PROGRESS: 'In-Progress',
+  DONE: 'Done',
+} as const;
 
-export type Status = (typeof STATUS)[number];
-export type Priority = (typeof PRIORITY)[number];
+export const PRIORITY = {
+  LOW: 'Low',
+  MEDIUM: 'Medium',
+  HIGH: 'High',
+} as const;
+
+
+export type Status = (typeof STATUS)[keyof typeof STATUS];
+export type Priority = (typeof PRIORITY)[keyof typeof PRIORITY];
 
 const taskSchema = new Schema(
   {
@@ -38,12 +48,12 @@ const taskSchema = new Schema(
     status: {
       type: String,
       enum: STATUS,
-      default: STATUS[0],
+      default: STATUS.TODO,
     },
     priority: {
       type: String,
       enum: PRIORITY,
-      default: PRIORITY[1],
+      default: PRIORITY.MEDIUM,
     },
   },
   { timestamps: true }
