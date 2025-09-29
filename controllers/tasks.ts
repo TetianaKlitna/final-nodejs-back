@@ -76,9 +76,8 @@ class TaskContoller {
     if (!task) {
       throw new NotFoundError(`No task found with id: ${taskId}`);
     }
-    return res
-      .status(StatusCodes.OK)
-      .json({ success: true, msg: 'The Task was deleted' });
+    const taskdto = new TaskDTO(task);
+    return res.status(StatusCodes.OK).json({ success: true, task: taskdto });
   }
 
   async updateTask(req: Request, res: Response, next: NextFunction) {
