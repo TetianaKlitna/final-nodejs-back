@@ -87,12 +87,7 @@ class TaskContoller {
       throw new BadRequestError('Task ID is required');
     }
     const { title, dueDate, description, status, priority } = req.body;
-    if (!title) {
-      throw new BadRequestError('Task title is required');
-    }
-    if (!dueDate) {
-      throw new BadRequestError('Task due date is required');
-    }
+
     const task = await TaskModel.findByIdAndUpdate(
       { _id: taskId, createdBy: user.userId },
       {
