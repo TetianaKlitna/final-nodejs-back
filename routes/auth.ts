@@ -1,14 +1,6 @@
 import express from 'express';
 import { body } from 'express-validator';
-import {
-  register,
-  login,
-  logout,
-  activate,
-  refresh,
-  googleAuth,
-  googleCallback,
-} from '../controllers/auth';
+import authController from '../controllers/auth';
 
 const authRouter = express.Router();
 
@@ -28,14 +20,13 @@ authRouter.post(
         'Password must be at least 8 chars and include uppercase, lowercase, number, and symbol.'
       ),
   ],
-  register
+  authController.register
 );
-authRouter.post('/login', login);
-authRouter.post('/logout', logout);
-authRouter.get('/activate/:link', activate);
-authRouter.get('/refresh', refresh);
-
-authRouter.get('/google', googleAuth);
-authRouter.get('/google/callback', googleCallback);
+authRouter.post('/login', authController.login);
+authRouter.post('/logout', authController.logout);
+authRouter.get('/activate/:link', authController.activate);
+authRouter.get('/refresh', authController.refresh);
+authRouter.post('/forgotPassword', authController.forgotPassword);
+authRouter.get('/resetPassword', authController.resetPassword);
 
 export default authRouter;

@@ -2,7 +2,11 @@ import UserModel from '../model/User';
 import uuid from 'uuid';
 import mailService from './mail-service';
 import tokenService from './token-service';
-import { BadRequestError, UnauthenticatedError } from '../errors';
+import {
+  BadRequestError,
+  UnauthenticatedError,
+  ForbiddenError,
+} from '../errors';
 import UserDTO from '../dto/user-dto';
 import bcrypt from 'bcryptjs';
 
@@ -15,7 +19,7 @@ class UserService {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     const activationLink = uuid.v4();
-    const user = await UserModel.create({
+    await UserModel.create({
       name,
       email,
       password: hashedPassword,
@@ -25,13 +29,6 @@ class UserService {
       email,
       `${process.env.API_URL}/api/v1/auth/activate/${activationLink}`
     );
-    const userdto = new UserDTO(user);
-    const tokens = tokenService.generateTokens(userdto.userId, userdto.name);
-    await tokenService.saveToken(userdto.userId, tokens.refreshToken);
-    return {
-      ...tokens,
-      user: userdto,
-    };
   }
 
   async activate(activationLink: string) {
@@ -51,6 +48,9 @@ class UserService {
     const isPassSame = await bcrypt.compare(password, user.password || '');
     if (!isPassSame) {
       throw new BadRequestError('Incorrect password');
+    }
+    if (!user.isActivated) {
+      throw new ForbiddenError('Please verify your email before logging in');
     }
     const userdto = new UserDTO(user);
     const tokens = tokenService.generateTokens(userdto.userId, userdto.name);
