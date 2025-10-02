@@ -6,6 +6,11 @@ export interface TokenJwtPayload extends JwtPayload {
   name: string;
 }
 
+export interface ResetTokenJwtPayload extends JwtPayload {
+  userId: string;
+  jti: string;
+}
+
 class TokenService {
   generateTokens(
     userId: string,
@@ -69,6 +74,29 @@ class TokenService {
         token,
         process.env.JWT_REFRESH_SECRET || ''
       ) as TokenJwtPayload;
+      return userData;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  }
+
+  generateResetToken(userId: string, jti: string): string {
+    const resetSecret = process.env.JWT_REFRESH_SECRET!;
+    const resetExpiresIn = process.env
+      .JWT_REFRESH_LIFETIME! as SignOptions['expiresIn'];
+    const resetToken = jwt.sign({ userId, jti }, resetSecret, {
+      expiresIn: resetExpiresIn,
+    });
+    return resetToken;
+  }
+
+  validateResetToken(token: string): ResetTokenJwtPayload | null {
+    try {
+      const userData = jwt.verify(
+        token,
+        process.env.JWT_RESET_SECRET || ''
+      ) as ResetTokenJwtPayload;
       return userData;
     } catch (err) {
       console.error(err);

@@ -35,6 +35,12 @@ const userSchema = new Schema(
       enum: PROVIDER,
       default: 'local',
     },
+    resetPasswordJti: {
+      type: String,
+    },
+    resetPasswordExpires: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );

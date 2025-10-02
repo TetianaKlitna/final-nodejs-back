@@ -53,9 +53,17 @@ class AuthController {
     res.status(StatusCodes.OK).json({ ...userData });
   }
 
-  async forgotPassword(req: Request, res: Response, next: NextFunction) {}
+  async forgotPassword(req: Request, res: Response, next: NextFunction) {
+    const { email } = req.body;
+    await userService.forgotPassword(email);
+    res.status(StatusCodes.OK).json({ success: true });
+  }
 
-  async resetPassword(req: Request, res: Response, next: NextFunction) {}
+  async resetPassword(req: Request, res: Response, next: NextFunction) {
+    const { email, token, newPassword } = req.body;
+    await userService.resetPassword(email, token, newPassword);
+    res.status(StatusCodes.OK).json({ success: true });
+  }
 }
 
 export default new AuthController();
