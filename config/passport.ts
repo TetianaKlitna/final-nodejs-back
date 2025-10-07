@@ -1,40 +1,34 @@
-import passport from 'passport';
-import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
-import User from '../model/User';
+import passport from 'passport'
+import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20'
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || ''
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || ''
+const CALLBACK_URL = `${process.env.API_URL}/api/v1/auth/google/callback`
 
 passport.serializeUser((user, done) => {
-  done(null, user);
-});
+  done(null, user)
+})
 
 passport.deserializeUser((obj: Express.User, done) => {
-  done(null, obj);
-});
+  done(null, obj)
+})
 
 passport.use(
   new GoogleStrategy(
     {
-      clientID: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-      callbackURL: `${process.env.API_URL}/api/v1/auth/google/callback`,
+      clientID: GOOGLE_CLIENT_ID,
+      clientSecret: GOOGLE_CLIENT_SECRET,
+      callbackURL: CALLBACK_URL
     },
     async (
       accessToken: string,
       refreshToken: string,
-      profile: Profile,
+      userProfile: Profile,
       done
     ) => {
-      const { email, name } = profile._json;
-      let user = await User.findOne({ email });
-      if (!user) {
-        user = await User.create({
-          name,
-          email,
-          provider: 'google',
-        });
-      }
-      return done(null, user);
+      return done(null, userProfile)
     }
   )
-);
+)
 
-export default passport;
+export default passport

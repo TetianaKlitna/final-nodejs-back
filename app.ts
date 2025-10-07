@@ -6,11 +6,11 @@ import express from 'express';
 import 'express-async-errors';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
-import passport from './config/passport';
 import authRouter from './routes/auth';
 import taskRouter from './routes/tasks';
 import notFoundMiddleware from './middleware/not-found';
 import errorHandlerMiddleware from './middleware/error-handler';
+import passport from './config/passport';
 
 const app = express();
 
@@ -43,8 +43,8 @@ app.use(
     },
   })
 );
+
 app.use(passport.initialize());
-app.use(passport.session());
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/tasks', taskRouter);
