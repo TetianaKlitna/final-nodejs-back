@@ -41,6 +41,7 @@ class AuthController {
     const { refreshToken } = req.cookies
     await userService.logout(refreshToken)
     res.clearCookie('refreshToken')
+    res.clearCookie('accessToken')
     return res.status(StatusCodes.OK).json({ success: true })
   }
 
