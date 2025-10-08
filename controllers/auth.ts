@@ -5,6 +5,7 @@ import { validationResult } from 'express-validator'
 import ms, { StringValue } from 'ms'
 import uuid from 'uuid'
 import passport from '../config/passport'
+import { BadRequestError } from '../errors'
 
 class AuthController {
   async register (req: Request, res: Response, next: NextFunction) {
@@ -119,8 +120,21 @@ class AuthController {
         if (!googleId) {
           return res.redirect(`${process.env.CLIENT_URL}/login?auth=missing_id`)
         }
-
-        const userData = await userService.googleLogin(email, name)
+        let userData
+        try {
+          userData = await userService.googleLogin(email, name, googleId)
+        } catch (error) {
+          console.error(error)
+          if (
+            error instanceof BadRequestError &&
+            error.message === 'This email is already registered.'
+          ) {
+            return res.redirect(
+              `${process.env.CLIENT_URL}/login?auth=email_exists`
+            )
+          }
+          return res.redirect(`${process.env.CLIENT_URL}/login?auth=user_error`)
+        }
         const expiresInAccess = process.env.JWT_ACCESS_LIFETIME || '30m'
         const expiresInRefresh = process.env.JWT_REFRESH_LIFETIME || '2d'
         res.cookie('accessToken', userData.accessToken, {

@@ -1,6 +1,6 @@
-import { Schema, model, InferSchemaType, HydratedDocument } from 'mongoose';
+import { Schema, model, InferSchemaType, HydratedDocument } from 'mongoose'
 
-const PROVIDER = ['local', 'google', 'facebook'];
+const PROVIDER = ['local', 'google', 'facebook']
 
 const userSchema = new Schema(
   {
@@ -9,7 +9,7 @@ const userSchema = new Schema(
       required: [true, 'Please provide name'],
       minlength: [3, 'Name must be at least 3 characters'],
       maxlength: [50, 'Name cannot be longer than 50 characters'],
-      trim: true,
+      trim: true
     },
     email: {
       type: String,
@@ -17,36 +17,42 @@ const userSchema = new Schema(
       unique: true,
       lowercase: true,
       trim: true,
-      maxlength: [100, 'Email cannot be longer than 100 characters'],
+      maxlength: [100, 'Email cannot be longer than 100 characters']
     },
     isActivated: { type: Boolean, default: false },
     activationLink: { type: String },
     password: {
       type: String,
       // google/facebook auth users without password
-      required: function (this: HydratedDocument<User>) {
-        return this.provider === 'local';
+      required: function (this: HydratedDocument<{ provider: string }>) {
+        return this.provider === 'local'
       },
-      minlength: [8, 'Password must be at least 8 characters long'],
+      minlength: [8, 'Password must be at least 8 characters long']
     },
     provider: {
       type: String,
       required: true,
       enum: PROVIDER,
-      default: 'local',
+      default: 'local'
+    },
+    googleId: {
+      type: String,
+      required: function (this: HydratedDocument<{ provider: string }>) {
+        return this.provider === 'google'
+      }
     },
     resetPasswordJti: {
-      type: String,
+      type: String
     },
     resetPasswordExpires: {
-      type: Date,
-    },
+      type: Date
+    }
   },
   { timestamps: true }
-);
+)
 
-export type User = InferSchemaType<typeof userSchema>;
-export type UserDoc = HydratedDocument<User>;
+export type User = InferSchemaType<typeof userSchema>
+export type UserDoc = HydratedDocument<User>
 
-const UserModel = model<User>('User', userSchema);
-export default UserModel;
+const UserModel = model<User>('User', userSchema)
+export default UserModel

@@ -11,6 +11,7 @@ import {
 import UserDTO from '../dto/user-dto'
 import bcrypt from 'bcryptjs'
 import ms, { StringValue } from 'ms'
+import type { UserDoc } from '../model/User'
 
 class UserService {
   async registration (name: string, email: string, password: string) {
@@ -187,12 +188,24 @@ class UserService {
     return { accessToken, user: userdto }
   }
 
-  async googleLogin (email: string, fullName: string) {
-    const user = await UserModel.findOneAndUpdate(
-      { email },
-      { $set: { name: fullName, isActivated: true, provider: 'google' } },
-      { upsert: true, new: true } // create if not exist, return new
-    )
+  async googleLogin (email: string, fullName: string, googleId: string) {
+    let user = await UserModel.findOne({ email })
+    if (user && user.provider !== 'google') {
+      throw new BadRequestError('This email is already registered.')
+    }
+    if (user && user.googleId !== googleId) {
+      user.googleId = googleId
+      await user.save()
+    }
+    if (!user) {
+      user = await UserModel.create({
+        email,
+        name: fullName,
+        googleId,
+        provider: 'google',
+        isActivated: true
+      })
+    }
     const userdto = new UserDTO(user)
     const tokens = tokenService.generateTokens(userdto.userId, userdto.name)
     await tokenService.saveToken(userdto.userId, tokens.refreshToken)
