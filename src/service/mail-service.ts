@@ -42,7 +42,7 @@ class MailService {
   }
 
   async sendResetPasswordLink (to: string, link: string): Promise<void> {
-    await this.resend.emails.send({
+    const { data, error } = await this.resend.emails.send({
       from: RESEND_FROM,
       to,
       subject: 'Password Reset Request',
@@ -56,6 +56,7 @@ class MailService {
                 <p>Best regards,<br/>NextTask Team</p>
               `
     })
+    console.log({ data, error })
   }
 }
 
