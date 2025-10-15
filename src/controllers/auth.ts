@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response, NextFunction, CookieOptions } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import userService from '../service/user-service'
 import { validationResult } from 'express-validator'
@@ -39,9 +39,19 @@ class AuthController {
 
   async logout (req: Request, res: Response, next: NextFunction) {
     const { refreshToken } = req.cookies
-    await userService.logout(refreshToken)
-    res.clearCookie('refreshToken')
-    res.clearCookie('accessToken')
+    if (refreshToken) {
+      await userService.logout(refreshToken)
+    }
+
+    const cookieOptions: CookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none' as const,
+      path: '/'
+    }
+
+    res.clearCookie('accessToken', cookieOptions)
+    res.clearCookie('refreshToken', cookieOptions)
     return res.status(StatusCodes.OK).json({ success: true })
   }
 
