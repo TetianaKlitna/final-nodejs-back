@@ -143,15 +143,15 @@ class AuthController {
         res.cookie('accessToken', userData.accessToken, {
           httpOnly: true,
           secure: true,
-          sameSite: 'lax',
+          sameSite: 'none',
           path: '/',
           maxAge: ms(expiresInAccess as StringValue)
         })
         res.cookie('refreshToken', userData.refreshToken, {
           httpOnly: true,
           secure: true,
-          sameSite: 'lax',
-          path: '/auth/refresh',
+          sameSite: 'none',
+          path: '/',
           maxAge: ms(expiresInRefresh as StringValue)
         })
 
