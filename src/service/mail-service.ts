@@ -24,7 +24,7 @@ class MailService {
   resend = new Resend(RESEND_API_KEY)
 
   async sendActivationLink (to: string, link: string): Promise<void> {
-    await this.resend.emails.send({
+    const { data, error } = await this.resend.emails.send({
       from: RESEND_FROM,
       to,
       subject: 'Welcome! Please activate your account',
@@ -38,6 +38,7 @@ class MailService {
             <p>Best regards,<br/>NextTask Team</p>
           `
     })
+    console.log({ data, error })
   }
 
   async sendResetPasswordLink (to: string, link: string): Promise<void> {
