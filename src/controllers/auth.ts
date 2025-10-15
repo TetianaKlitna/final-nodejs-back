@@ -75,9 +75,10 @@ class AuthController {
   }
 
   async getCurrentUser (req: Request, res: Response, next: NextFunction) {
-    console.log('Cookies:', req.cookies)
+    console.log(req.cookies)
     const { accessToken } = req.cookies
-    console.log('accessToken:', accessToken)
+    console.log(accessToken)
+    const userData = await userService.getCurrentUser(accessToken)
     res.status(StatusCodes.OK).json({ ...userData })
   }
 
