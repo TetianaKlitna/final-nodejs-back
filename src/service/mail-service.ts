@@ -1,7 +1,9 @@
-import nodemailer, { Transporter } from 'nodemailer'
-import SMTPTransport from 'nodemailer/lib/smtp-transport'
+// import nodemailer, { Transporter } from 'nodemailer'
+// import SMTPTransport from 'nodemailer/lib/smtp-transport'
 import { Resend } from 'resend'
 
+const RESEND_API_KEY = process.env.RESEND_API_KEY!
+const RESEND_FROM = process.env.RESEND_FROM!
 class MailService {
   //transporter: Transporter<SMTPTransport.SentMessageInfo, SMTPTransport.Options>
 
@@ -19,11 +21,11 @@ class MailService {
   // this.transporter = nodemailer.createTransport(options)
   //}
 
-  resend = new Resend(process.env.RESEND_API_KEY)
+  resend = new Resend(RESEND_API_KEY)
 
   async sendActivationLink (to: string, link: string): Promise<void> {
     await this.resend.emails.send({
-      from: `"NextTask Team" <${process.env.SMTP_USER}>`,
+      from: RESEND_FROM,
       to,
       subject: 'Welcome! Please activate your account',
       html: `
@@ -40,7 +42,7 @@ class MailService {
 
   async sendResetPasswordLink (to: string, link: string): Promise<void> {
     await this.resend.emails.send({
-      from: `"NextTask Team" <${process.env.SMTP_USER}>`,
+      from: RESEND_FROM,
       to,
       subject: 'Password Reset Request',
       html: `
