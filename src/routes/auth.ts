@@ -1,7 +1,6 @@
 import express from 'express'
 import { body } from 'express-validator'
 import authController from '../controllers/auth'
-import requireAuth from '../middleware/require-auth'
 
 const authRouter = express.Router()
 

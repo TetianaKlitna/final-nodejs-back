@@ -32,7 +32,7 @@ class AuthController {
       maxAge: ms(expiresIn as StringValue),
       httpOnly: true,
       secure: true,
-      sameSite: 'lax'
+      sameSite: 'none'
     })
     res.status(StatusCodes.OK).json({ ...userData })
   }
@@ -97,7 +97,7 @@ class AuthController {
     res.cookie('oauthState', state, {
       httpOnly: true,
       secure: true,
-      sameSite: 'lax',
+      sameSite: 'none',
       path: '/',
       maxAge: 15 * 60 * 1000 // 15 min
     })
