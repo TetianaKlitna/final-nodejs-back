@@ -167,13 +167,13 @@ class UserService {
     }
   }
 
-  async getCurrentUser (accessToken: string) {
-    if (!accessToken) {
+  async getCurrentUser (refreshToken: string) {
+    if (!refreshToken) {
       throw new UnauthenticatedError('Access token missing')
     }
 
-    const payload = tokenService.validateAccessToken(
-      accessToken
+    const payload = tokenService.validateRefreshToken(
+      refreshToken
     ) as TokenJwtPayload
     if (!payload) {
       throw new UnauthenticatedError('Invalid or expired token')
@@ -185,7 +185,7 @@ class UserService {
     }
 
     const userdto = new UserDTO(user)
-    return { accessToken, user: userdto }
+    return { user: userdto }
   }
 
   async googleLogin (email: string, fullName: string, googleId: string) {

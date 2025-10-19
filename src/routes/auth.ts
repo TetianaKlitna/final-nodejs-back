@@ -25,11 +25,11 @@ authRouter.post(
 authRouter.post('/login', authController.login)
 authRouter.post('/logout', authController.logout)
 authRouter.get('/activate/:link', authController.activate)
-authRouter.get('/refresh', authController.refresh)
+authRouter.get('/user', authController.getCurrentUser)
+authRouter.post('/refresh', authController.refresh)
 authRouter.post('/forgotPassword', authController.forgotPassword)
 authRouter.post('/resetPassword', authController.resetPassword)
 authRouter.get('/google', authController.googleAuth)
 authRouter.get('/google/callback', authController.googleCallback)
-authRouter.get('/user', authController.getCurrentUser)
 
 export default authRouter

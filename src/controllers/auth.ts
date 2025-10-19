@@ -50,7 +50,6 @@ class AuthController {
       path: '/'
     }
 
-    res.clearCookie('accessToken', cookieOptions)
     res.clearCookie('refreshToken', cookieOptions)
     return res.status(StatusCodes.OK).json({ success: true })
   }
@@ -61,6 +60,12 @@ class AuthController {
     return res.redirect(`${process.env.CLIENT_URL}/login` as string)
   }
 
+  async getCurrentUser (req: Request, res: Response, next: NextFunction) {
+    const { refreshToken } = req.cookies
+    const userData = await userService.getCurrentUser(refreshToken)
+    res.status(StatusCodes.OK).json({ ...userData })
+  }
+
   async refresh (req: Request, res: Response, next: NextFunction) {
     const { refreshToken } = req.cookies
     const userData = await userService.refresh(refreshToken)
@@ -69,7 +74,9 @@ class AuthController {
       maxAge: ms(expiresIn as StringValue),
       httpOnly: true
     })
-    res.status(StatusCodes.OK).json({ ...userData })
+    res
+      .status(StatusCodes.OK)
+      .json({ user: userData.user, accessToken: userData.accessToken })
   }
 
   async forgotPassword (req: Request, res: Response, next: NextFunction) {
@@ -82,12 +89,6 @@ class AuthController {
     const { email, token, newPassword } = req.body
     await userService.resetPassword(email, token, newPassword)
     res.status(StatusCodes.OK).json({ success: true })
-  }
-
-  async getCurrentUser (req: Request, res: Response, next: NextFunction) {
-    const { accessToken } = req.cookies
-    const userData = await userService.getCurrentUser(accessToken)
-    res.status(StatusCodes.OK).json({ ...userData })
   }
 
   async googleAuth (req: Request, res: Response, next: NextFunction) {
@@ -148,13 +149,6 @@ class AuthController {
         }
         const expiresInAccess = process.env.JWT_ACCESS_LIFETIME || '30m'
         const expiresInRefresh = process.env.JWT_REFRESH_LIFETIME || '2d'
-        res.cookie('accessToken', userData.accessToken, {
-          httpOnly: true,
-          secure: true,
-          sameSite: 'none',
-          path: '/',
-          maxAge: ms(expiresInAccess as StringValue)
-        })
         res.cookie('refreshToken', userData.refreshToken, {
           httpOnly: true,
           secure: true,
