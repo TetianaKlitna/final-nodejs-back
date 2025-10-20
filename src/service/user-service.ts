@@ -11,7 +11,7 @@ import {
 import UserDTO from '../dto/user-dto'
 import bcrypt from 'bcryptjs'
 import ms, { StringValue } from 'ms'
-import type { UserDoc } from '../model/User'
+//import type { UserDoc } from '../model/User'
 
 class UserService {
   async registration (name: string, email: string, password: string) {
@@ -26,12 +26,13 @@ class UserService {
       name,
       email,
       password: hashedPassword,
-      activationLink
+      activationLink,
+      isActivated: true
     })
-    await mailService.sendActivationLink(
-      email,
-      `${process.env.API_URL}/api/v1/auth/activate/${activationLink}`
-    )
+    // await mailService.sendActivationLink(
+    //   email,
+    //   `${process.env.API_URL}/api/v1/auth/activate/${activationLink}`
+    // )
   }
 
   async activate (activationLink: string) {
