@@ -147,7 +147,6 @@ class AuthController {
           }
           return res.redirect(`${process.env.CLIENT_URL}/login?auth=user_error`)
         }
-        const expiresInAccess = process.env.JWT_ACCESS_LIFETIME || '30m'
         const expiresInRefresh = process.env.JWT_REFRESH_LIFETIME || '2d'
         res.cookie('refreshToken', userData.refreshToken, {
           httpOnly: true,
@@ -157,7 +156,13 @@ class AuthController {
           maxAge: ms(expiresInRefresh as StringValue)
         })
 
-        return res.redirect(`${process.env.CLIENT_URL}`)
+        return res.redirect(
+          `${
+            process.env.CLIENT_URL
+          }/login?auth=success&token=${encodeURIComponent(
+            userData.accessToken
+          )}&username=${encodeURIComponent(userData?.user?.name)}`
+        )
       }
     )(req, res, next)
   }
