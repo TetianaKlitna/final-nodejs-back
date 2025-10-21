@@ -1,6 +1,6 @@
 import UserModel from '../model/User'
 import uuid from 'uuid'
-import mailService from './mail-service'
+import mailService from './mail-service.local'
 import tokenService from './token-service'
 import type { ResetTokenJwtPayload, TokenJwtPayload } from './token-service'
 import {
