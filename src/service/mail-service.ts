@@ -3,35 +3,27 @@ import SMTPTransport from 'nodemailer/lib/smtp-transport'
 
 class MailService {
   private transporter: Transporter<SMTPTransport.SentMessageInfo>
+
   constructor () {
+    // const options: SMTPTransport.Options = {
+    //   host: process.env.SMTP_HOST,
+    //   port: Number(process.env.SMTP_PORT ?? 587),
+    //   secure: process.env.SMTP_SECURE === 'true', // true for 465, false for 587/25
+    //   auth: {
+    //     user: process.env.SMTP_USER,
+    //     pass: process.env.SMTP_PASSWORD
+    //   }
+    // }
+
     const options: SMTPTransport.Options = {
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: Number(process.env.SMTP_PORT ?? 587),
-      secure: false, // must be false for port 587 (STARTTLS)
+      service: process.env.SMTP_SERVICE || 'gmail',
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASSWORD
-      },
-      tls: {
-        rejectUnauthorized: true
-      },
-      connectionTimeout: 30_000,
-      greetingTimeout: 20_000,
-      socketTimeout: 60_000
+      }
     }
 
     this.transporter = nodemailer.createTransport(options)
-
-    this.verifyConnection()
-  }
-
-  private async verifyConnection (): Promise<void> {
-    try {
-      await this.transporter.verify()
-      console.log('✅ SMTP connection verified successfully')
-    } catch (error) {
-      console.error('❌ SMTP connection failed:', error)
-    }
   }
 
   async sendActivationLink (to: string, link: string): Promise<void> {
@@ -51,12 +43,7 @@ class MailService {
       `
     }
 
-    try {
-      const info = await this.transporter.sendMail(mailOptions)
-      console.log(`📧 Activation email sent to ${to}: ${info.messageId}`)
-    } catch (error) {
-      console.error('Error sending activation link:', error)
-    }
+    await this.transporter.sendMail(mailOptions)
   }
 
   async sendResetPasswordLink (to: string, link: string): Promise<void> {
@@ -76,12 +63,7 @@ class MailService {
       `
     }
 
-    try {
-      const info = await this.transporter.sendMail(mailOptions)
-      console.log(`📧 Password reset email sent to ${to}: ${info.messageId}`)
-    } catch (error) {
-      console.error('Error sending password reset email:', error)
-    }
+    await this.transporter.sendMail(mailOptions)
   }
 }
 

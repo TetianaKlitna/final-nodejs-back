@@ -1,6 +1,6 @@
 import UserModel from '../model/User'
 import uuid from 'uuid'
-import mailService from './mail-service.local'
+import mailService from './mail-service'
 import tokenService from './token-service'
 import type { ResetTokenJwtPayload, TokenJwtPayload } from './token-service'
 import {
@@ -29,10 +29,10 @@ class UserService {
       activationLink,
       isActivated: true
     })
-    await mailService.sendActivationLink(
-      email,
-      `${process.env.API_URL}/api/v1/auth/activate/${activationLink}`
-    )
+    // await mailService.sendActivationLink(
+    //   email,
+    //   `${process.env.API_URL}/api/v1/auth/activate/${activationLink}`
+    // )
   }
 
   async activate (activationLink: string) {
