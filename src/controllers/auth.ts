@@ -5,7 +5,7 @@ import { validationResult } from 'express-validator'
 import ms, { StringValue } from 'ms'
 import uuid from 'uuid'
 import passport from '../config/passport'
-import { BadRequestError } from '../errors'
+import { BadRequestError, UnauthenticatedError } from '../errors'
 
 class AuthController {
   async register (req: Request, res: Response, next: NextFunction) {
@@ -68,15 +68,28 @@ class AuthController {
 
   async refresh (req: Request, res: Response, next: NextFunction) {
     const { refreshToken } = req.cookies
-    const userData = await userService.refresh(refreshToken)
-    const expiresIn = process.env.JWT_REFRESH_LIFETIME || '2d'
-    res.cookie('refreshToken', userData.refreshToken, {
-      maxAge: ms(expiresIn as StringValue),
-      httpOnly: true
-    })
-    res
-      .status(StatusCodes.OK)
-      .json({ user: userData.user, accessToken: userData.accessToken })
+    if (!refreshToken)
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: 'Unauthorized' })
+    try {
+      const userData = await userService.refresh(refreshToken)
+      const expiresIn = process.env.JWT_REFRESH_LIFETIME || '2d'
+      res.cookie('refreshToken', userData.refreshToken, {
+        maxAge: ms(expiresIn as StringValue),
+        httpOnly: true
+      })
+      res
+        .status(StatusCodes.OK)
+        .json({ user: userData.user, accessToken: userData.accessToken })
+    } catch (error) {
+      if (error instanceof UnauthenticatedError) {
+        return res
+          .status(StatusCodes.UNAUTHORIZED)
+          .json({ message: 'Unauthorized' })
+      }
+      next(error)
+    }
   }
 
   async forgotPassword (req: Request, res: Response, next: NextFunction) {

@@ -29,10 +29,10 @@ class UserService {
       activationLink,
       isActivated: true
     })
-    // await mailService.sendActivationLink(
-    //   email,
-    //   `${process.env.API_URL}/api/v1/auth/activate/${activationLink}`
-    // )
+    await mailService.sendActivationLink(
+      email,
+      `${process.env.API_URL}/api/v1/auth/activate/${activationLink}`
+    )
   }
 
   async activate (activationLink: string) {
